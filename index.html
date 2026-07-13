@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard DRK Rottenburg</title>
+<style>
+  :root{
+    --drk-red:#E3000B;
+    --drk-red-dark:#B4000A;
+    --text-dark:#1a1a1a;
+    --text-muted:#5a5a5a;
+    --border-light:#e2e2e2;
+  }
+ 
+  *{ box-sizing:border-box; margin:0; padding:0; }
+ 
+  html,body{
+    font-family:'Segoe UI', Roboto, Arial, Helvetica, sans-serif;
+    background:#ffffff;
+    color:var(--text-dark);
+    line-height:1.6;
+  }
+ 
+  a{ color:var(--drk-red); text-decoration:none; }
+ 
+  /* ---------- Kopfzeile ---------- */
+  .top-bar{
+    height:64px;
+    background:#ffffff;
+    border-bottom:3px solid var(--drk-red);
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:0 20px;
+  }
+ 
+  .brand-mark{
+    width:100px;
+    height:40px;
+    flex-shrink:0;
+    display:block;
+    object-fit:contain;
+  }
+ 
+  .brand-text{
+    font-size:16px;
+    font-weight:600;
+    color:var(--text-dark);
+  }
+ 
+  .brand-sub{
+    font-size:12px;
+    color:var(--text-muted);
+    display:block;
+  }
+ 
+  /* ---------- Hauptbereich ---------- */
+  .dashboard{
+    max-width:860px;
+    margin:0 auto;
+    padding:48px 24px 80px;
+  }
+ 
+  .dashboard-intro{
+    margin-bottom:36px;
+    padding-bottom:20px;
+    border-bottom:1px solid var(--border-light);
+  }
+ 
+  .dashboard-intro h1{
+    font-size:26px;
+    font-weight:700;
+    margin-bottom:8px;
+  }
+ 
+  .dashboard-intro p{
+    color:var(--text-muted);
+    font-size:15px;
+    max-width:560px;
+  }
+ 
+  /* ---------- Direkte Buttons ---------- */
+  .quick-links{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+    margin-bottom:44px;
+  }
+ 
+  .quick-link{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    padding:20px 22px;
+    border:1px solid var(--border-light);
+    background:#ffffff;
+    transition:border-color .15s ease, transform .15s ease;
+  }
+ 
+  .quick-link:hover{
+    border-color:var(--drk-red);
+    transform:translateY(-2px);
+  }
+ 
+  .quick-link-text{ min-width:0; }
+ 
+  .quick-link-title{
+    font-size:16px;
+    font-weight:600;
+    color:var(--text-dark);
+    margin-bottom:4px;
+  }
+ 
+  .quick-link-desc{
+    font-size:13px;
+    color:var(--text-muted);
+  }
+ 
+  .quick-link-arrow{
+    font-size:20px;
+    color:var(--drk-red);
+    flex-shrink:0;
+    transition:transform .15s ease;
+  }
+ 
+  .quick-link:hover .quick-link-arrow{
+    transform:translateX(4px);
+  }
+ 
+  /* ---------- Modernes Dropdown ---------- */
+  .more-section{
+    max-width:360px;
+  }
+ 
+  .more-label{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    color:var(--text-muted);
+    margin-bottom:10px;
+  }
+ 
+  .dropdown{
+    position:relative;
+  }
+ 
+  .dropdown-toggle{
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding:13px 18px;
+    background:#ffffff;
+    border:1px solid var(--border-light);
+    border-radius:10px;
+    font-size:14.5px;
+    font-weight:600;
+    color:var(--text-dark);
+    cursor:pointer;
+    transition:border-color .15s ease, box-shadow .15s ease;
+  }
+ 
+  .dropdown-toggle:hover{
+    border-color:var(--drk-red);
+  }
+ 
+  .dropdown.open .dropdown-toggle{
+    border-color:var(--drk-red);
+    box-shadow:0 0 0 3px rgba(227,0,11,0.10);
+  }
+ 
+  .dropdown-chevron{
+    width:10px;
+    height:10px;
+    border-right:2px solid var(--drk-red);
+    border-bottom:2px solid var(--drk-red);
+    transform:rotate(45deg);
+    transition:transform .2s ease;
+    flex-shrink:0;
+  }
+ 
+  .dropdown.open .dropdown-chevron{
+    transform:rotate(225deg);
+  }
+ 
+  .dropdown-panel{
+    position:absolute;
+    top:calc(100% + 8px);
+    left:0;
+    right:0;
+    background:#ffffff;
+    border:1px solid var(--border-light);
+    border-radius:10px;
+    box-shadow:0 12px 28px rgba(0,0,0,.10);
+    overflow:hidden;
+    opacity:0;
+    transform:translateY(-6px);
+    pointer-events:none;
+    transition:opacity .15s ease, transform .15s ease;
+    z-index:10;
+  }
+ 
+  .dropdown.open .dropdown-panel{
+    opacity:1;
+    transform:translateY(0);
+    pointer-events:auto;
+  }
+ 
+  .dropdown-panel a{
+    display:block;
+    padding:12px 18px;
+    font-size:14px;
+    color:var(--text-dark);
+    border-left:3px solid transparent;
+  }
+ 
+  .dropdown-panel a:hover{
+    background:#fdf2f2;
+    border-left-color:var(--drk-red);
+    color:var(--drk-red);
+  }
+ 
+  .dropdown-panel a + a{
+    border-top:1px solid var(--border-light);
+  }
+ 
+  /* ---------- Responsive: Mobil ---------- */
+  @media (max-width:640px){
+    .quick-links{
+      grid-template-columns:1fr;
+    }
+ 
+    .brand-sub{ display:none; }
+ 
+    .dashboard{ padding:32px 18px 60px; }
+  }
+</style>
+</head>
+<body>
+ 
+<div class="top-bar">
+  <img class="brand-mark" src="2019-01-27-59-Logo-DRK-Neu.png" alt="DRK Logo Platzhalter">
+  <div>
+    <div class="brand-text">Übersicht Webservices</div>
+    <span class="brand-sub">Deutsches Rotes Kreuz Ortsverein Rottenburg am Neckar e.V.</span>
+  </div>
+</div>
+ 
+<main class="dashboard">
+ 
+  <div class="dashboard-intro">
+    <h1>Dashboard</h1>
+    <p>Wähle einen Bereich, um direkt zur passenden Seite zu wechseln. Weitere Seiten findest du im Auswahlmenü darunter.</p>
+  </div>
+ 
+  <div class="quick-links">
+    <a class="quick-link" href="https://www.appsheet.com/start/5422f7a8-0b95-42c2-b1a4-86cb4a4ced8b?platform=desktop">
+      <span class="quick-link-text">
+        <span class="quick-link-title">RobuCheck</span>
+        <span class="quick-link-desc">Materialverwaltungs-Instanz</span>
+      </span>
+      <span class="quick-link-arrow">&rarr;</span>
+    </a>
+  <div class="quick-links">
+    <a class="quick-link" href="https://janderblasius.github.io/robucheck-helpdesk/">
+      <span class="quick-link-text">
+        <span class="quick-link-title">RobuCheck Helpdesk</span>
+        <span class="quick-link-desc">Hier findest du schnelle Hilfestellung und eine Einführung in RobuCheck</span>
+      </span>
+      <span class="quick-link-arrow">&rarr;</span>
+    </a>
+ 
+    <a class="quick-link" href="https://www.appsheet.com/start/681a5f54-30ea-4335-b7af-ee1978fe605b?platform=desktop#appName=Lagereing%C3%A4ngenachChargenApp-705424913&vss=H4sIAAAAAAAAA6WOwQrCMBBE_2XO-YJcRVBEL4oX4yE2Wwm2SWlStYT8uxu1eFaP85Y3OwlXS7dt1NUF8pA-aUUjJJLCbuxIQSrMvIu9bxSEwka3L7jwLXX6zCEjH8XkRwqQ6Ttd_vddwBpy0daW-tJVTO54e3wuFoPJQRZoh6hPDT0Hs5Mzs9pXQyCz5yk_TAhLN7932pm1N1xZ6yZQfgAXbaaaZQEAAA==&view=Homepage">
+      <span class="quick-link-text">
+        <span class="quick-link-title">ADLER Lagermanagement</span>
+        <span class="quick-link-desc">Das Admin-Portal für RobuCheck</span>
+      </span>
+      <span class="quick-link-arrow">&rarr;</span>
+    </a>
+ 
+    <a class="quick-link" href="https://wiki.drk-rottenburg.org">
+      <span class="quick-link-text">
+        <span class="quick-link-title">Wiki DRK Rottenburg</span>
+        <span class="quick-link-desc">Zum Wiki / Bookstack</span>
+      </span>
+      <span class="quick-link-arrow">&rarr;</span>
+    </a>
+ 
+    <a class="quick-link" href="https://cloud.drk-rottenburg.org">
+      <span class="quick-link-text">
+        <span class="quick-link-title">Nextcloud</span>
+        <span class="quick-link-desc">Zur Nextcloud-Instanz der Materialverwaltung</span>
+      </span>
+      <span class="quick-link-arrow">&rarr;</span>
+    </a>
+  </div>
+ 
+  <div class="more-section">
+    <div class="more-label">Weitere Seiten</div>
+    <div class="dropdown" id="moreDropdown">
+      <button class="dropdown-toggle" id="dropdownToggle" type="button" aria-haspopup="true" aria-expanded="false">
+        <span>Seite auswählen</span>
+        <span class="dropdown-chevron"></span>
+      </button>
+      <div class="dropdown-panel" role="menu">
+        <a href="https://janderblasius.github.io/robucheck-labelgenerator/" role="menuitem">RobuCheck Label Generator</a>
+        <a href="https://cpr.ssn-becker.synology.me:6101" role="menuitem">CPR-Bewertungstool</a>
+        <a href="https://github.com/JanderBlasius/drk-rtbg-allfiles" role="Öffentliches Vorlagenverzeichnis</a>
+        <a href="https://janderblasius.github.io/robucheck-helpdesk" role="menuitem">RobuCheck-Helpdesk</a>
+      </div>
+    </div>
+  </div>
+ 
+</main>
+ 
+<script>
+  const dropdown = document.getElementById('moreDropdown');
+  const toggle = document.getElementById('dropdownToggle');
+ 
+  toggle.addEventListener('click', () => {
+    const isOpen = dropdown.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  });
+ 
+  document.addEventListener('click', (event) => {
+    if (!dropdown.contains(event.target)){
+      dropdown.classList.remove('open');
+      toggle.setAttribute('aria-expanded', 'false');
+    }
+  });
+ 
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape'){
+      dropdown.classList.remove('open');
+      toggle.setAttribute('aria-expanded', 'false');
+    }
+  });
+</script>
+ 
+</body>
+</html>
+ 
