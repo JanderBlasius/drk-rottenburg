@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kampfrechner</title>
+<style>
+  :root {
+    --bg: #f4f1ea;
+    --card-bg: #ffffff;
+    --border: #d9d5cb;
+    --text: #2c2c2a;
+    --text-secondary: #6b6a66;
+    --attacker: #185fa5;
+    --attacker-bg: #e6f1fb;
+    --defender: #3b6d11;
+    --defender-bg: #eaf3de;
+    --danger: #a32d2d;
+    --danger-bg: #fcebeb;
+    --radius: 12px;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 900px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem;
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0 0 1.5rem;
+  }
+
+  .battlefield {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 0;
+    align-items: stretch;
+  }
+
+  .side {
+    padding: 1.25rem 1.5rem;
+    border-radius: var(--radius);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .side.attacker {
+    background: var(--attacker-bg);
+  }
+
+  .side.defender {
+    background: var(--defender-bg);
+  }
+
+  .side-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    font-size: 1.05rem;
+  }
+
+  .side.attacker .side-header {
+    color: var(--attacker);
+  }
+
+  .side.defender .side-header {
+    color: var(--defender);
+  }
+
+  .icon {
+    font-size: 1.4rem;
+    line-height: 1;
+  }
+
+  label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+  }
+
+  input[type="number"] {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    font-size: 1.1rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--card-bg);
+    color: var(--text);
+  }
+
+  input[type="number"]:focus {
+    outline: 2px solid currentColor;
+    outline-offset: 1px;
+  }
+
+  .hint {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  .vs-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 1.5rem;
+    gap: 1rem;
+  }
+
+  .vs-symbol {
+    font-size: 1.5rem;
+    color: var(--text-secondary);
+  }
+
+  button {
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 0.75rem 1.75rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.05s ease, opacity 0.15s ease;
+    color: #fff;
+  }
+
+  button:active {
+    transform: scale(0.97);
+  }
+
+  #fightBtn {
+    background: var(--text);
+    white-space: nowrap;
+  }
+
+  #fightBtn:hover {
+    opacity: 0.9;
+  }
+
+  #resetBtn {
+    background: var(--text-secondary);
+  }
+
+  #resetBtn:hover {
+    opacity: 0.9;
+  }
+
+  .error-box {
+    display: none;
+    margin-top: 1.25rem;
+    padding: 0.75rem 1rem;
+    background: var(--danger-bg);
+    color: var(--danger);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-align: center;
+  }
+
+  .result {
+    display: none;
+    margin-top: 1.5rem;
+    text-align: center;
+  }
+
+  .result-card {
+    display: inline-block;
+    min-width: 280px;
+    padding: 1.5rem 2.5rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--bg);
+  }
+
+  .result-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem;
+  }
+
+  .result-sub {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0;
+  }
+
+  .result-detail {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin: 0.75rem 0 0;
+    line-height: 1.4;
+  }
+
+  .result-actions {
+    margin-top: 1.5rem;
+  }
+
+  /* Mobile: vertikale Teilung */
+  @media (max-width: 640px) {
+    .battlefield {
+      grid-template-columns: 1fr;
+    }
+
+    .vs-column {
+      flex-direction: row;
+      padding: 0.75rem 0;
+    }
+
+    .vs-symbol {
+      transform: rotate(90deg);
+    }
+
+    .container {
+      padding: 1.25rem;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Risiko – Kampfrechner</h1>
+
+  <div id="setup" class="battlefield">
+    <div class="side attacker">
+      <div class="side-header">
+        <span class="icon">⚔️</span>
+        <span>Angreifer</span>
+      </div>
+      <label for="att">Mannstärke</label>
+      <input type="number" id="att" min="0" step="1" placeholder="z. B. 10">
+      <p class="hint">Mindestens 3 Truppen erforderlich</p>
+    </div>
+
+    <div class="vs-column">
+      <span class="vs-symbol">↔</span>
+      <button id="fightBtn">Kämpfen</button>
+    </div>
+
+    <div class="side defender">
+      <div class="side-header">
+        <span class="icon">🛡️</span>
+        <span>Verteidiger</span>
+      </div>
+      <label for="def">Mannstärke</label>
+      <input type="number" id="def" min="0" step="1" placeholder="z. B. 10">
+      <p class="hint">Verteidiger-Bonus: +10 % Mannstärke. Mindestens 1 Truppe erforderlich</p>
+    </div>
+  </div>
+
+  <div id="error" class="error-box"></div>
+
+  <div id="result" class="result">
+    <div class="result-card">
+      <p id="resultTitle" class="result-title"></p>
+      <p id="resultSub" class="result-sub"></p>
+      <p id="resultDetail" class="result-detail"></p>
+    </div>
+    <div class="result-actions">
+      <button id="resetBtn">Fertig — neuen Kampf vorbereiten</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const attInput = document.getElementById('att');
+  const defInput = document.getElementById('def');
+  const errBox = document.getElementById('error');
+  const setup = document.getElementById('setup');
+  const resultDiv = document.getElementById('result');
+  const fightBtn = document.getElementById('fightBtn');
+  const resetBtn = document.getElementById('resetBtn');
+
+  function showError(msg) {
+    errBox.textContent = msg;
+    errBox.style.display = 'block';
+  }
+
+  function clearError() {
+    errBox.style.display = 'none';
+    errBox.textContent = '';
+  }
+
+  fightBtn.addEventListener('click', () => {
+    clearError();
+
+    const att = parseInt(attInput.value, 10);
+    const def = parseInt(defInput.value, 10);
+
+    if (isNaN(att) || isNaN(def)) {
+      showError('Bitte für beide Seiten eine gültige Zahl eingeben.');
+      return;
+    }
+
+    if (att < 3) {
+      showError('Angreifertrupp zu schwach');
+      return;
+    }
+
+    if (def < 1) {
+      showError('Der Verteidiger benötigt mindestens eine Truppe.');
+      return;
+    }
+
+    // Verteidiger-Bonus: +10% effektive Mannstärke, aufgerundet auf ganze Truppen
+    const defEffective = Math.ceil(def * 1.1);
+    const total = att + defEffective;
+
+    // Grundwahrscheinlichkeit anhand des Kräfteverhältnisses
+    let attWinProb = att / total;
+
+    // Dämpfung: Übermacht erhöht die Chance, garantiert aber keinen Sieg
+    attWinProb = 0.5 + (attWinProb - 0.5) * 0.85;
+    attWinProb = Math.min(0.95, Math.max(0.05, attWinProb));
+
+    const attackerWins = Math.random() < attWinProb;
+
+    let winnerName, startStrength, opponentStrength;
+
+    if (attackerWins) {
+      winnerName = 'Angreifer';
+      startStrength = att;
+      opponentStrength = defEffective;
+    } else {
+      winnerName = 'Verteidiger';
+      startStrength = def;
+      opponentStrength = att;
+    }
+
+    // Verbleibende Truppen: gleichmäßig zufällig zwischen 1 und der Ausgangsstärke,
+    // mit einer Tendenz nach unten, je stärker der Gegner war
+    const strengthRatio = opponentStrength / (startStrength + opponentStrength);
+    // exponent > 1 verschiebt die Verteilung Richtung kleinerer Werte bei starkem Gegner
+    const skew = 1 + strengthRatio * 2;
+    const randomFactor = Math.pow(Math.random(), skew);
+    let remaining = Math.round(1 + randomFactor * (startStrength - 1));
+    remaining = Math.min(startStrength, Math.max(1, remaining));
+
+    const resultTitle = document.getElementById('resultTitle');
+    const resultSub = document.getElementById('resultSub');
+    const resultDetail = document.getElementById('resultDetail');
+
+    resultTitle.textContent = winnerName + ' gewinnt!';
+    resultTitle.style.color = attackerWins ? 'var(--attacker)' : 'var(--defender)';
+    resultSub.textContent = remaining + ' verbleibende Truppen';
+    resultDetail.textContent =
+      'Angreifer: ' + att + ' vs. Verteidiger: ' + def +
+      ' (effektiv ' + defEffective + ' mit Bonus) · ' +
+      'Siegwahrscheinlichkeit Angreifer: ' + Math.round(attWinProb * 100) + ' %';
+
+    setup.style.display = 'none';
+    resultDiv.style.display = 'block';
+  });
+
+  resetBtn.addEventListener('click', () => {
+    resultDiv.style.display = 'none';
+    setup.style.display = 'grid';
+    clearError();
+    attInput.value = '';
+    defInput.value = '';
+    attInput.focus();
+  });
+</script>
+</body>
+</html>
